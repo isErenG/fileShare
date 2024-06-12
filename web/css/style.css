@@ -20,15 +20,25 @@ body {
 .container {
     color: white;
     background: var(--container-color);
-    padding: 40px;
+    padding: 40px 100px 40px 100px;
     border-radius: 20px;
-    box-shadow: 0 0 10px var(--third-color);
+    border-style: solid;
+    border-width: thick;
+    border-color: var(--fourth-color);
     text-align: center;
 }
 
-input[type="file"], input[type="text"] {
-    margin-bottom: 10px;
+input[type="file"] {
     display: none;
+}
+
+input[type="text"] {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 label.custom-file-upload, button {
@@ -48,5 +58,5 @@ label.custom-file-upload:hover, button:hover {
 
 .messages {
     margin-top: 10px;
-    color: green;
+    color: var(--third-color);
 }
