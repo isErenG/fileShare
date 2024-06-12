@@ -8,11 +8,6 @@ import (
 )
 
 func DownloadFile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
 	filename := r.URL.Query().Get("filename")
 	if filename == "" {
 		http.Error(w, "Filename is required", http.StatusBadRequest)

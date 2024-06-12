@@ -5,9 +5,5 @@ import (
 )
 
 func main() {
-	err := internal.NewRouter()
-
-	if err != nil {
-		panic(err)
-	}
+	internal.StartRouter()
 }
