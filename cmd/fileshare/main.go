@@ -1,9 +1,14 @@
 package main
 
 import (
-	"fileShare/internal"
+	"fileShare/internal/router"
+	"log"
+	"net/http"
 )
 
 func main() {
-	internal.StartRouter()
+	r := router.New()
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatal(err)
+	}
 }

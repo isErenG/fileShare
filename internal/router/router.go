@@ -1,11 +1,11 @@
-package internal
+package router
 
 import (
 	"fileShare/internal/handlers"
 	"net/http"
 )
 
-func newRouter() *http.ServeMux {
+func New() *http.ServeMux {
 
 	r := http.NewServeMux()
 
@@ -15,14 +15,4 @@ func newRouter() *http.ServeMux {
 	http.Handle("/", r)
 
 	return r
-}
-
-func StartRouter() {
-	router := newRouter()
-
-	err := http.ListenAndServe(":8080", router)
-
-	if err != nil {
-		panic(err)
-	}
 }
