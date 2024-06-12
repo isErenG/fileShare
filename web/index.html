@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Share</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>File Share</h1>
+
+    <h2>Upload File</h2>
+    <form id="uploadForm">
+        <input type="file" id="uploadFile" required>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="uploadMessage" class="messages"></div>
+
+    <h2>Download File</h2>
+    <form id="downloadForm">
+        <input type="text" id="downloadFileName" placeholder="Enter filename" required>
+        <button type="submit">Download</button>
+    </form>
+    <div id="downloadMessage" class="messages"></div>
+</div>
+
+<script defer src="js/script.js"></script>
+</body>
+</html>
