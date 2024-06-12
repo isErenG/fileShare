@@ -1,7 +1,21 @@
-document.getElementById('uploadForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+document.addEventListener('DOMContentLoaded', init);
 
-    let fileInput = document.getElementById('uploadFile');
+function init() {
+    let uploadInput = document.getElementById("uploadButton");
+    uploadInput.addEventListener('change', function(event) {
+        event.preventDefault();
+        upload();
+    });
+
+    let downloadForm = document.getElementById("downloadForm");
+    downloadForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        download();
+    });
+}
+
+function upload() {
+    let fileInput = document.getElementById('uploadButton');
     let file = fileInput.files[0];
     let formData = new FormData();
     formData.append('file', file);
@@ -13,15 +27,13 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
         .then(response => {
             if (!response.ok) {
                 console.log(response.status);
-                // If the response status is not in the range 200-299
-                throw new Error('File upload failed'); // Throw an error
+                throw new Error('File upload failed');
             }
-            // If the response status is in the range 200-299
-            return response.text(); // Return the response body as text
+            return response.json(); // Expecting a JSON response
         })
         .then(data => {
             // Handle the successful response here
-            document.getElementById('uploadMessage').innerText = data;
+            document.getElementById('uploadMessage').innerText = `File uploaded successfully: ${data.file_code}`;
             fileInput.value = ''; // Clear the input
         })
         .catch(error => {
@@ -29,12 +41,9 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
             console.error('Error:', error);
             document.getElementById('uploadMessage').innerText = 'File upload failed';
         });
+}
 
-});
-
-document.getElementById('downloadForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
+function download() {
     let filename = document.getElementById('downloadFileName').value;
 
     fetch(`http://localhost:8080/download?filename=${filename}`)
@@ -58,4 +67,4 @@ document.getElementById('downloadForm').addEventListener('submit', function(even
             console.error('Error:', error);
             document.getElementById('downloadMessage').innerText = 'File download failed';
         });
-});
+}

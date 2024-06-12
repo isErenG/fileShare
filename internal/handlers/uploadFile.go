@@ -1,10 +1,16 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fileShare/internal/di"
+	"fileShare/pkg/filecodes"
 	"fmt"
 	"net/http"
 )
+
+type response struct {
+	FileCode string `json:"file-code"`
+}
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 	file, handler, err := r.FormFile("file")
@@ -14,6 +20,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
+	code := filecodes.AddFileCode(handler.Filename)
+	fmt.Println(code)
+	// Add err checking
+
 	repo := di.GetRepository()
 	err = repo.SaveFile(handler.Filename, file)
 	if err != nil {
@@ -21,5 +31,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "File uploaded successfully: %v", handler.Filename)
+	// Construct the response object
+	response := response{
+		FileCode: code,
+	}
+
+	responseJson, err := json.Marshal(response)
+
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(responseJson)
+
+	//fmt.Fprintf(w, "File uploaded successfully: %v", handler.Filename)
 }
