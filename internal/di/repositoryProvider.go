@@ -7,5 +7,5 @@ func GetFileRepository() data.FileRepository {
 }
 
 func GetUserRepository() data.UserRepository {
-	return data.NewLocalUserRepository("d")
+	return data.NewLocalUserRepository("/Users/ereng/GolandProjects/fileShare/files/users.json")
 }

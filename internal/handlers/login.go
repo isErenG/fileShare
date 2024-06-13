@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"fileShare/internal/data"
 	"fileShare/internal/di"
 	"fmt"
@@ -16,14 +15,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	usr, err := repo.GetUserByUsername(username)
 	if err != nil {
-		if err != data.ErrUserNotFound) {
+		if err != data.ErrUserNotFound {
 			// TODO: Return password is wrong!
 			http.Error(w, "Password is incorrect!", http.StatusUnauthorized)
-
+			return
 		}
+
 		repo.CreateUser(username, password)
 	}
 
+	fmt.Println(usr)
 
 	// check password hash
 
