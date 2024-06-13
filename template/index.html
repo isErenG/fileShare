@@ -1,31 +1,36 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Share</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 <div class="container">
     <h2>Upload File</h2>
-    <form id="uploadForm">
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
         <label for="uploadButton" class="custom-file-upload">
             Upload
         </label>
-        <input id="uploadButton" type="file" name="file"/>
+        <!-- Add onchange attribute to trigger form submission -->
+        <input id="uploadButton" type="file" name="file" onchange="this.form.submit()"/>
     </form>
-    <div id="uploadMessage" class="messages"></div>
+    {{if .FileCode}}
+    <div id="uploadMessage" class="messages">
+        File uploaded successfully. Your file code is: <strong>{{.FileCode}}</strong>
+    </div>
+    {{end}}
 
     <h2>Download File</h2>
-    <form id="downloadForm">
-        <label for="downloadForm"></label>
+    <form id="downloadForm" action="/download" method="GET">
+        <label for="downloadFileName"></label>
+        <input type="text" id="downloadFileName" name="file_code" placeholder="Enter 6-character code" maxlength="6" />
         <button type="submit">Download</button>
     </form>
-    <input type="text" id="codeInput" placeholder="Enter 6-character code" maxlength="6" />
+
     <div id="downloadMessage" class="messages"></div>
 </div>
-
-<script src="../static/js/script.js" type="module"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fileShare/internal/di"
 	"fileShare/pkg/filecodes"
 	"fmt"
@@ -21,8 +20,8 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	code := filecodes.AddFileCode(handler.Filename)
+	// TODO: Add err checking
 	fmt.Println(code)
-	// Add err checking
 
 	repo := di.GetRepository()
 	err = repo.SaveFile(handler.Filename, file)
@@ -36,14 +35,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		FileCode: code,
 	}
 
-	responseJson, err := json.Marshal(response)
-
 	if err != nil {
 		panic(err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(responseJson)
+	renderTemplate(w, "index.html", response)
 
-	//fmt.Fprintf(w, "File uploaded successfully: %v", handler.Filename)
 }
