@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fileShare/pkg/filecodes"
 	"fmt"
 	"io"
 	"os"
@@ -16,7 +17,7 @@ func NewLocalFileRepository(basePath string) *LocalFileRepository {
 }
 
 func (repo *LocalFileRepository) RetrieveFile(filename string) (io.ReadCloser, error) {
-	path := filepath.Join(repo.basePath, filename)
+	path := filepath.Join(repo.basePath, filecodes.GetFile(filename))
 	fmt.Println("Retrieving file:", path)
 	return os.Open(path)
 }

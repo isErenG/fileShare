@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', init);
 
+
 function init() {
     let uploadInput = document.getElementById("uploadButton");
     uploadInput.addEventListener('change', function(event) {
         event.preventDefault();
         upload();
     });
-
+    console.log("yod");
     let downloadForm = document.getElementById("downloadForm");
     downloadForm.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -44,8 +45,8 @@ function upload() {
 }
 
 function download() {
-    let filename = document.getElementById('downloadFileName').value;
-
+    let filename = document.getElementById('codeInput').value;
+    console.log(filename);
     fetch(`http://localhost:8080/download?filename=${filename}`)
         .then(response => {
             if (!response.ok) {

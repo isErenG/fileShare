@@ -15,5 +15,9 @@ func New() *http.ServeMux {
 
 	http.Handle("/", r)
 
+	// Serve static files
+	staticFs := http.FileServer(http.Dir("./static"))
+	r.Handle("/static/", http.StripPrefix("/static", staticFs))
+
 	return r
 }

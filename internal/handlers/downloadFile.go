@@ -8,14 +8,14 @@ import (
 )
 
 func DownloadFile(w http.ResponseWriter, r *http.Request) {
-	filename := r.URL.Query().Get("filename")
-	if filename == "" {
+	filecode := r.URL.Query().Get("filename")
+	if filecode == "" {
 		http.Error(w, "Filename is required", http.StatusBadRequest)
 		return
 	}
 
 	repo := di.GetRepository()
-	file, err := repo.RetrieveFile(filename)
+	file, err := repo.RetrieveFile(filecode)
 	if err != nil {
 		if os.IsNotExist(err) {
 			http.Error(w, "File not found", http.StatusNotFound)
