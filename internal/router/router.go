@@ -9,6 +9,7 @@ func New() *http.ServeMux {
 
 	r := http.NewServeMux()
 
+	r.HandleFunc("/", handlers.Home)
 	r.HandleFunc("POST /upload", handlers.UploadFile)
 	r.HandleFunc("GET /download", handlers.DownloadFile)
 
