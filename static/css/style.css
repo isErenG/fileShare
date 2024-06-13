@@ -32,7 +32,7 @@ input[type="file"] {
     display: none;
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
     margin-bottom: 10px;
     padding: 10px;
     border: none;

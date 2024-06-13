@@ -12,6 +12,7 @@ func New() *http.ServeMux {
 	r.HandleFunc("/", handlers.Home)
 	r.HandleFunc("POST /upload", handlers.UploadFile)
 	r.HandleFunc("GET /download", handlers.DownloadFile)
+	r.HandleFunc("POST /login", handlers.Login)
 
 	http.Handle("/", r)
 
