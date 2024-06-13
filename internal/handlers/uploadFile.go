@@ -9,7 +9,7 @@ import (
 )
 
 type response struct {
-	FileCode string `json:"file-code"`
+	FileCode string `json:"file_code"`
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
