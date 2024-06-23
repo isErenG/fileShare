@@ -6,15 +6,15 @@ import (
 )
 
 func New() *http.ServeMux {
-
 	r := http.NewServeMux()
 
-	r.HandleFunc("/", handlers.Home)
-	r.HandleFunc("POST /upload", handlers.UploadFile)
-	r.HandleFunc("GET /download", handlers.DownloadFile)
-	r.HandleFunc("POST /login", handlers.Login)
+	// Apply JWT authorization middleware to specific routes
+	authHome := JWTAuthorization(http.HandlerFunc(handlers.Home))
+	r.Handle("/", authHome)
 
-	http.Handle("/", r)
+	r.HandleFunc("/upload", handlers.UploadFile)
+	r.HandleFunc("/download", handlers.DownloadFile)
+	r.HandleFunc("/login", handlers.Login)
 
 	// Serve static files
 	staticFs := http.FileServer(http.Dir("./static"))

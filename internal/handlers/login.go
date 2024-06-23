@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fileShare/internal/auth"
 	"fileShare/internal/data"
 	"fileShare/internal/di"
 	"fmt"
@@ -8,6 +9,11 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		LoginPage(w, r)
+		return
+	}
+
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
@@ -28,4 +34,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// check password hash
 
+	token, err := auth.CreateToken(username)
+	if err != nil {
+		fmt.Println("Yo")
+	}
+
+	// Set the token in the response header or response body as needed
+	w.Header().Set("Authorization", "Bearer "+token)
+	w.WriteHeader(http.StatusOK)
+
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
