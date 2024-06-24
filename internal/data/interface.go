@@ -1,13 +1,18 @@
 package data
 
-import "io"
+import (
+	"fileShare/internal/data/postgres/repository"
+	"io"
+)
 
 type FileRepository interface {
-	RetrieveFile(filename string) (io.ReadCloser, error)
-	SaveFile(filename string, file io.Reader) error
+	RetrieveFile(string) (io.ReadCloser, error)
+	SaveFile(string, io.Reader) error
+	DeleteFile(string) error
 }
 
 type UserRepository interface {
 	CreateUser(string, string) error
-	GetUserByUsername(string) (*User, error)
+	GetUserByUsername(string) (*repository.User, error)
+	DeleteUserByID(int) error
 }

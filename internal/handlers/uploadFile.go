@@ -23,7 +23,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// TODO: Add err checking
 	fmt.Println(code)
 
-	repo := di.GetFileRepository()
+	repo, _ := di.GetFileRepository()
 	err = repo.SaveFile(handler.Filename, file)
 	if err != nil {
 		http.Error(w, "Error saving the file", http.StatusInternalServerError)

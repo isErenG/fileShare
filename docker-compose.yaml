@@ -24,6 +24,10 @@ services:
 
   postgres:
     image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: goat
+      POSTGRES_DB: fileshare
     volumes:
       - post-data:/data/db
     networks:

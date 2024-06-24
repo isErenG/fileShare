@@ -3,13 +3,17 @@ package handlers
 import (
 	"fileShare/internal/auth"
 	"fileShare/internal/data"
-	"fileShare/internal/di"
+	"fileShare/internal/data/postgres/repository"
 	"fmt"
 	"net/http"
 	"time"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+type UserRepository struct {
+	Storage data.UserRepository
+}
+
+func (h *UserRepository) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		LoginPage(w, r)
 		return
@@ -19,16 +23,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	repo := di.GetUserRepository()
-
-	usr, err := repo.GetUserByUsername(username)
+	usr, err := h.Storage.GetUserByUsername(username)
 	if err != nil {
-		if err != data.ErrUserNotFound {
+		if err != repository.ErrUserNotFound {
 			http.Error(w, "Password is incorrect!", http.StatusUnauthorized)
 			return
 		}
 
-		repo.CreateUser(username, password)
+		err := h.Storage.CreateUser(username, password)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 
 	fmt.Println(usr)

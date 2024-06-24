@@ -14,7 +14,7 @@ func DownloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo := di.GetFileRepository()
+	repo, _ := di.GetFileRepository()
 	file, err := repo.RetrieveFile(filecode)
 	if err != nil {
 		if os.IsNotExist(err) {

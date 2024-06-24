@@ -1,4 +1,4 @@
-package router
+package jwt
 
 import (
 	"fileShare/internal/auth"
