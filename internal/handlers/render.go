@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -15,8 +16,9 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	tmplPath := filepath.Join("templates", tmpl)
+	tmplPath := filepath.Join("/app/templates", tmpl)
 	t, err := template.ParseFiles(tmplPath)
+	fmt.Println(tmplPath)
 	if err != nil {
 		http.Error(w, "Error parsing templates", http.StatusInternalServerError)
 		return

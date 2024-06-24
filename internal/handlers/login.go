@@ -6,6 +6,7 @@ import (
 	"fileShare/internal/di"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -13,7 +14,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		LoginPage(w, r)
 		return
 	}
-
+	//TODO: Add postgres db and check if password hashes match for logging
+	//TODO LATER: Add google OAuth
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
@@ -22,7 +24,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	usr, err := repo.GetUserByUsername(username)
 	if err != nil {
 		if err != data.ErrUserNotFound {
-			// TODO: Return password is wrong!
 			http.Error(w, "Password is incorrect!", http.StatusUnauthorized)
 			return
 		}
@@ -39,9 +40,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Yo")
 	}
 
-	// Set the token in the response header or response body as needed
-	w.Header().Set("Authorization", "Bearer "+token)
-	w.WriteHeader(http.StatusOK)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		Expires:  time.Now().Add(24 * time.Hour),
+	})
 
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

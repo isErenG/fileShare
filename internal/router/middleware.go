@@ -7,18 +7,15 @@ import (
 
 func JWTAuthorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString := r.Header.Get("Authorization")
-		if tokenString == "" {
+		// Read the token from the cookie
+		cookie, err := r.Cookie("jwt")
+		if err != nil {
 			// No token provided
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		// Extract the token value (assuming it's in the format "Bearer <token>")
-		tokenString = tokenString[len("Bearer "):]
-
-		// Verify the token
-		err := auth.VerifyToken(tokenString)
+		err = auth.VerifyToken(cookie.Value)
 		if err != nil {
 			// Token verification failed
 			http.Redirect(w, r, "/login", http.StatusSeeOther)

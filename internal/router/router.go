@@ -10,10 +10,13 @@ func New() *http.ServeMux {
 
 	// Apply JWT authorization middleware to specific routes
 	authHome := JWTAuthorization(http.HandlerFunc(handlers.Home))
-	r.Handle("/", authHome)
+	authUpload := JWTAuthorization(http.HandlerFunc(handlers.UploadFile))
+	authDownload := JWTAuthorization(http.HandlerFunc(handlers.DownloadFile))
 
-	r.HandleFunc("/upload", handlers.UploadFile)
-	r.HandleFunc("/download", handlers.DownloadFile)
+	r.Handle("/", authHome)
+	r.Handle("/upload", authUpload)
+	r.Handle("/download", authDownload)
+
 	r.HandleFunc("/login", handlers.Login)
 
 	// Serve static files
