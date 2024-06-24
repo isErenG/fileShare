@@ -7,7 +7,7 @@ import (
 )
 
 func GetFileRepository() (data.FileRepository, error) {
-	return mongo.NewMongoFileRepository("/Users/ereng/GolandProjects/fileShare/files/")
+	return mongo.NewMongoFileRepository()
 }
 
 func GetUserRepository() (data.UserRepository, error) {

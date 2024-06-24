@@ -3,8 +3,8 @@
 Personal project for developing Golang skills
 
 ### Bugs
-- HTML templates won't apply css in docker container
 - Home handler is called 3 times for whatever reason
+- Crashes on start up but on reboot it works?
 
 ### Upcoming Tasks
 - Add Google OAuth

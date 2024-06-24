@@ -15,13 +15,18 @@ func New() *http.ServeMux {
 		panic(err)
 	}
 
+	fileRepo, err := di.GetFileRepository()
+	if err != nil {
+		panic(err)
+	}
+
 	// Passing user repository to the login handler or smtg idk it works
 	h := &handlers.UserRepository{Storage: userRepo}
 
 	// Apply JWT authorization middleware to specific routes
 	authHome := jwt.JWTAuthorization(http.HandlerFunc(handlers.Home))
-	authUpload := jwt.JWTAuthorization(http.HandlerFunc(handlers.UploadFile))
-	authDownload := jwt.JWTAuthorization(http.HandlerFunc(handlers.DownloadFile))
+	authUpload := jwt.JWTAuthorization(handlers.UploadFile(fileRepo))
+	authDownload := jwt.JWTAuthorization(handlers.DownloadFile(fileRepo))
 
 	r.Handle("/", authHome)
 	r.Handle("/upload", authUpload)
@@ -30,7 +35,7 @@ func New() *http.ServeMux {
 	r.HandleFunc("/login", h.Login)
 
 	// Serve static files
-	staticFs := http.FileServer(http.Dir("./static"))
+	staticFs := http.FileServer(http.Dir("/app/static"))
 	r.Handle("/static/", http.StripPrefix("/static", staticFs))
 
 	return r
