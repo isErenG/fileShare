@@ -15,4 +15,5 @@ type UserRepository interface {
 	CreateUser(string, string) error
 	GetUserByUsername(string) (*repository.User, error)
 	DeleteUserByID(int) error
+	VerifyUser(string, string) (bool, error)
 }

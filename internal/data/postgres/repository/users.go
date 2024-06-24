@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"os"
 )
@@ -23,8 +24,7 @@ var ErrUserNotFound = errors.New("user not found")
 
 func NewPostgresStore() (*PostgresStore, error) {
 	// Load environment variables from .env file
-	err := godotenv.Load("/app/.env")
-	if err != nil {
+	if err := godotenv.Load("/app/.env"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
@@ -33,25 +33,39 @@ func NewPostgresStore() (*PostgresStore, error) {
 	password := os.Getenv("POSTGRES_PASSWORD")
 	dbname := os.Getenv("POSTGRES_DB")
 	host := os.Getenv("POSTGRES_HOST")
-	port := os.Getenv("POSTGRES_PORT")
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", user, dbname, password, host)
 	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
+		fmt.Println(err)
+		fmt.Println(12)
 		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
+		fmt.Println(15)
+		fmt.Println(err)
 		return nil, err
 	}
 
-	return &PostgresStore{db: db}, nil
+	postgresStore := new(PostgresStore)
+	postgresStore.db = db
+
+	if err = postgresStore.init(); err != nil {
+		fmt.Println(18)
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return postgresStore, nil
 }
 
-func (s *PostgresStore) Init() error {
+func (s *PostgresStore) init() error {
 	err := s.createAccountTable()
 	if err != nil {
+		fmt.Println(20)
+		fmt.Println(err)
 		return err
 	}
 
@@ -67,6 +81,8 @@ func (s *PostgresStore) createAccountTable() error {
 
 	_, err := s.db.Exec(query)
 	if err != nil {
+		fmt.Println(1)
+		fmt.Println(err)
 		return err
 	}
 
@@ -74,10 +90,14 @@ func (s *PostgresStore) createAccountTable() error {
 }
 
 func (s *PostgresStore) CreateUser(username string, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
 	query := `INSERT INTO users (username, password) VALUES ($1, $2)`
 
-	_, err := s.db.Exec(query, username, password)
+	_, err = s.db.Exec(query, username, hashedPassword)
 	if err != nil {
+		fmt.Println(5423)
+		fmt.Println(err)
 		return err
 	}
 
@@ -86,10 +106,12 @@ func (s *PostgresStore) CreateUser(username string, password string) error {
 }
 
 func (s *PostgresStore) GetUserByUsername(username string) (*User, error) {
-	query := `SELECT username FROM users WHERE username=$1`
+	query := `SELECT username, password FROM users WHERE username=$1`
 
 	rows, err := s.db.Query(query, username)
 	if err != nil {
+		fmt.Println(1434)
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -98,7 +120,9 @@ func (s *PostgresStore) GetUserByUsername(username string) (*User, error) {
 	rows.Next()
 	err = rows.Scan(&user.Username, &user.Password)
 	if err != nil {
-		return nil, nil
+		fmt.Println(1666)
+		fmt.Println(err)
+		return nil, ErrUserNotFound
 	}
 
 	fmt.Println("user retrieved")
@@ -110,9 +134,27 @@ func (s *PostgresStore) DeleteUserByID(id int) error {
 
 	_, err := s.db.Exec(query, id)
 	if err != nil {
+		fmt.Println(1e34)
+		fmt.Println(err)
 		return err
 	}
 
 	fmt.Println("user deleted!")
 	return nil
+}
+
+func (s *PostgresStore) VerifyUser(username, password string) (bool, error) {
+	user, err := s.GetUserByUsername(username)
+	if err != nil {
+		return false, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		// Password does not match
+		return false, errors.New("incorrect password")
+	}
+
+	// Password matches
+	return true, nil
 }

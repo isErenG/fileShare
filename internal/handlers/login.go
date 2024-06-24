@@ -18,32 +18,29 @@ func (h *UserRepository) Login(w http.ResponseWriter, r *http.Request) {
 		LoginPage(w, r)
 		return
 	}
-	//TODO: Add postgres db and check if password hashes match for logging
 	//TODO LATER: Add google OAuth
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	usr, err := h.Storage.GetUserByUsername(username)
+	user, err := h.Storage.VerifyUser(username, password)
 	if err != nil {
-		if err != repository.ErrUserNotFound {
-			http.Error(w, "Password is incorrect!", http.StatusUnauthorized)
+		if err == repository.ErrUserNotFound {
+			err := h.Storage.CreateUser(username, password)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 			return
 		}
-
-		err := h.Storage.CreateUser(username, password)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
 	}
 
-	fmt.Println(usr)
-
-	// check password hash
+	fmt.Println(user)
 
 	token, err := auth.CreateToken(username)
 	if err != nil {
-		fmt.Println("Yo")
+		fmt.Println(err)
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -52,7 +49,7 @@ func (h *UserRepository) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  time.Now().Add(2 * time.Hour),
 	})
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)

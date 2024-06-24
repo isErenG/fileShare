@@ -8,10 +8,12 @@ import (
 )
 
 func Home(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Test1")
 	renderTemplate(w, "index.html", nil)
 }
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Test2")
 	renderTemplate(w, "login.html", nil)
 }
 

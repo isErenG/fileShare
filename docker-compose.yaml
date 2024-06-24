@@ -8,8 +8,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mongo
       - postgres
+      - mongo
     environment:
       MONGO_URI: mongodb://mongo:27017/fileshare
     networks:
@@ -39,4 +39,3 @@ volumes:
 
 networks:
   fileshare_network:
-    driver: bridge
