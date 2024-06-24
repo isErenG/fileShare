@@ -35,7 +35,6 @@ func NewPostgresStore() (*PostgresStore, error) {
 	host := os.Getenv("POSTGRES_HOST")
 
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", user, dbname, password, host)
-	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Println(err)
