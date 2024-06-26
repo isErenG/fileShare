@@ -2,12 +2,12 @@ package di
 
 import (
 	"fileShare/internal/data"
-	mongo "fileShare/internal/data/mongo/repository"
 	postgres "fileShare/internal/data/postgres/repository"
+	"fileShare/internal/s3"
 )
 
 func GetFileRepository() (data.FileRepository, error) {
-	return mongo.NewMongoFileRepository()
+	return s3.NewMinIOClient()
 }
 
 func GetUserRepository() (data.UserRepository, error) {

@@ -20,7 +20,7 @@ func New() *http.ServeMux {
 		panic(err)
 	}
 
-	// Passing user repository to the login handler or smtg idk it works
+	// Golang constructor
 	h := &handlers.UserRepository{Storage: userRepo}
 
 	// Apply JWT authorization middleware to specific routes

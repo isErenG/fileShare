@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fileShare/internal/data"
-	"fileShare/pkg/filecodes"
+	"fileShare/lib/filecodes"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -20,13 +21,19 @@ func UploadFile(fileRepo data.FileRepository) http.HandlerFunc {
 		}
 		defer file.Close()
 
-		code := filecodes.AddFileCode(handler.Filename)
+		code := filecodes.CreateCode()
 		// TODO: Add err checking
 		fmt.Println(code)
 
-		err = fileRepo.SaveFile(handler.Filename, file)
+		contentType := handler.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+
+		err = fileRepo.UploadObject(handler.Filename, file, handler.Size, contentType)
 		if err != nil {
-			http.Error(w, "Error saving the file", http.StatusInternalServerError)
+			log.Printf("Failed to upload file: %v", err)
+			http.Error(w, "Failed to upload file", http.StatusInternalServerError)
 			return
 		}
 
@@ -35,11 +42,6 @@ func UploadFile(fileRepo data.FileRepository) http.HandlerFunc {
 			FileCode: code,
 		}
 
-		if err != nil {
-			panic(err)
-		}
-
 		renderTemplate(w, "index.html", response)
-
 	}
 }

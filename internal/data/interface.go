@@ -3,12 +3,12 @@ package data
 import (
 	"fileShare/internal/data/postgres/repository"
 	"io"
+	"mime/multipart"
 )
 
 type FileRepository interface {
-	RetrieveFile(string) (io.ReadCloser, error)
-	SaveFile(string, io.Reader) error
-	DeleteFile(string) error
+	DownloadObject(key string) (io.Reader, error)
+	UploadObject(string, multipart.File, int64, string) error
 }
 
 type UserRepository interface {

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fileShare/internal/data"
+	"fmt"
 	"io"
 	"net/http"
-	"os"
 )
 
 func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
@@ -15,17 +15,12 @@ func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 			return
 		}
 
-		file, err := fileRepo.RetrieveFile(filecode)
+		file, err := fileRepo.DownloadObject(filecode)
 		if err != nil {
-			if os.IsNotExist(err) {
-				http.Error(w, "File not found", http.StatusNotFound)
-				return
-			}
-
-			http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
+			fmt.Println(err)
+			http.Error(w, "File not found!", http.StatusNotFound)
 			return
 		}
-		defer file.Close()
 
 		// Set headers for file download
 		w.Header().Set("Content-Disposition", "attachment; filename="+filecode)
@@ -34,6 +29,7 @@ func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 
 		_, err = io.Copy(w, file)
 		if err != nil {
+			fmt.Println(err)
 			http.Error(w, "Error downloading the file", http.StatusInternalServerError)
 		}
 	}
