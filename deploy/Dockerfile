@@ -5,13 +5,13 @@ FROM golang:1.22-alpine
 WORKDIR /app
 
 # Copy the go.mod and go.sum files to the working directory
-COPY go.mod go.sum ./
+COPY ../go.mod go.sum ./
 
 # Download all dependencies
 RUN go mod download
 
 # Copy the rest of the application code to the working directory
-COPY . .
+COPY .. .
 
 
 # Set the working directory for the build context

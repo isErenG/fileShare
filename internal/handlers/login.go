@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-type UserRepository struct {
+type LoginHandler struct {
 	Storage data.UserRepository
 }
 
-func (h *UserRepository) Login(w http.ResponseWriter, r *http.Request) {
+func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		LoginPage(w, r)
 		return

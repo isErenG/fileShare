@@ -7,7 +7,6 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -54,20 +53,40 @@ func NewMinIOClient() (*MinIOClient, error) {
 	}, nil
 }
 
-func (c *MinIOClient) UploadObject(key string, file multipart.File, fileSize int64, contentType string) error {
-	_, err := c.client.PutObject(context.Background(), c.bucket, key, file, fileSize, minio.PutObjectOptions{ContentType: contentType})
+func (c *MinIOClient) UploadObject(key string, file multipart.File, fileSize int64, contentType string, originalFilename string) error {
+	opts := minio.PutObjectOptions{
+		ContentType:  contentType,
+		UserMetadata: map[string]string{"original-filename": originalFilename},
+	}
+
+	_, err := c.client.PutObject(context.Background(), c.bucket, key, file, fileSize, opts)
 	if err != nil {
 		return err
 	}
-	log.Println("Successfully uploaded the object to MinIO!")
+
+	fmt.Printf("File has been uploaded to %s. Key: %s, Filesize: %s, Filename: %s\n", c.bucket, key, fileSize, originalFilename)
 	return nil
 }
 
-func (c *MinIOClient) DownloadObject(key string) (io.Reader, error) {
+func (c *MinIOClient) DownloadObject(key string) (io.Reader, string, error) {
 	object, err := c.client.GetObject(context.Background(), c.bucket, key, minio.GetObjectOptions{})
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		fmt.Printf("Error fetching object '%s' from bucket '%s': %s\n", key, c.bucket, err.Error())
+		return nil, "", err
 	}
-	return object, nil
+	// Retrieve metadata to get content type
+	info, err := object.Stat()
+	if err != nil {
+		object.Close() // Close the object if an error occurs
+		fmt.Println("Error: " + err.Error())
+		return nil, "", err
+	}
+	// Extract original filename from user metadata
+	originalFilename := info.UserMetadata["original-filename"]
+	if originalFilename == "" {
+		originalFilename = key // Fallback to using object key as filename
+	}
+
+	fmt.Printf("Retrieved object from %s. Filename: %s, Filesize: %s ", c.bucket, originalFilename, info.Size)
+	return object, originalFilename, nil
 }

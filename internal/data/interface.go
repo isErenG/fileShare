@@ -7,8 +7,8 @@ import (
 )
 
 type FileRepository interface {
-	DownloadObject(key string) (io.Reader, error)
-	UploadObject(string, multipart.File, int64, string) error
+	DownloadObject(string) (io.Reader, string, error)
+	UploadObject(string, multipart.File, int64, string, string) error
 }
 
 type UserRepository interface {

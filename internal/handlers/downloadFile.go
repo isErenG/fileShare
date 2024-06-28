@@ -15,7 +15,7 @@ func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 			return
 		}
 
-		file, err := fileRepo.DownloadObject(filecode)
+		file, filename, err := fileRepo.DownloadObject(filecode)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "File not found!", http.StatusNotFound)
@@ -23,8 +23,7 @@ func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 		}
 
 		// Set headers for file download
-		w.Header().Set("Content-Disposition", "attachment; filename="+filecode)
-		w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+		w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 		w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 
 		_, err = io.Copy(w, file)

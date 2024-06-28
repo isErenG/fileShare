@@ -21,7 +21,7 @@ func New() *http.ServeMux {
 	}
 
 	// Golang constructor
-	h := &handlers.UserRepository{Storage: userRepo}
+	lh := &handlers.LoginHandler{Storage: userRepo}
 
 	// Apply JWT authorization middleware to specific routes
 	authHome := jwt.JWTAuthorization(http.HandlerFunc(handlers.Home))
@@ -32,7 +32,7 @@ func New() *http.ServeMux {
 	r.Handle("/upload", authUpload)
 	r.Handle("/download", authDownload)
 
-	r.HandleFunc("/login", h.Login)
+	r.HandleFunc("/login", lh.Login)
 
 	// Serve static files
 	staticFs := http.FileServer(http.Dir("/app/static"))
