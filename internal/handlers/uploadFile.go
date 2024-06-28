@@ -8,10 +8,6 @@ import (
 	"net/http"
 )
 
-type response struct {
-	FileCode string `json:"file_code"`
-}
-
 func UploadFile(fileRepo data.FileRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		file, handler, err := r.FormFile("file")
@@ -37,7 +33,7 @@ func UploadFile(fileRepo data.FileRepository) http.HandlerFunc {
 		}
 
 		// Construct the response object
-		response := response{
+		response := Response{
 			FileCode: code,
 		}
 

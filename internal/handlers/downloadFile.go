@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fileShare/internal/data"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -10,26 +9,34 @@ import (
 func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		filecode := r.FormValue("file_code")
+
+		response := Response{}
+
 		if filecode == "" {
-			http.Error(w, "Filename is required", http.StatusBadRequest)
+			response.DownloadMessage = "File code is required!"
+			renderTemplate(w, "index.html", response)
 			return
 		}
 
-		file, filename, err := fileRepo.DownloadObject(filecode)
+		file, filename, contentType, err := fileRepo.DownloadObject(filecode)
 		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "File not found!", http.StatusNotFound)
+			response.DownloadMessage = "File code is not found!"
+			renderTemplate(w, "index.html", response)
 			return
 		}
 
 		// Set headers for file download
 		w.Header().Set("Content-Disposition", "attachment; filename="+filename)
 		w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
+		w.Header().Set("Content-Type", contentType)
 
 		_, err = io.Copy(w, file)
 		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Error downloading the file", http.StatusInternalServerError)
+			response.DownloadMessage = "Internal server error! Contact administrator."
 		}
+
+		response.DownloadMessage = "Successfully downloaded!"
+		renderTemplate(w, "index.html", response)
+
 	}
 }

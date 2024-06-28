@@ -22,11 +22,13 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	t, err := template.ParseFiles(tmplPath)
 	fmt.Println(tmplPath)
 	if err != nil {
+		fmt.Println(err.Error())
 		http.Error(w, "Error parsing templates", http.StatusInternalServerError)
 		return
 	}
 	err = t.Execute(w, data)
 	if err != nil {
+		fmt.Println(err.Error())
 		http.Error(w, "Error executing templates", http.StatusInternalServerError)
 	}
 }
