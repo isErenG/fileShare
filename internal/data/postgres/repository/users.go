@@ -1,66 +1,37 @@
 package repository
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
-	"log"
-	"os"
+
+	db "fileShare/internal/data/postgres"
 )
+
+type UserRepository struct {
+	Storage *db.Connection
+}
 
 type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type PostgresStore struct {
-	db *sql.DB
-}
-
 var ErrUserNotFound = errors.New("user not found")
 
-func NewPostgresStore() (*PostgresStore, error) {
-	// Load environment variables from .env file
-	if err := godotenv.Load("/app/.env"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+func NewUsersStorage(conn *db.Connection) *UserRepository {
+	userRepository := new(UserRepository)
+	userRepository.Storage = conn
 
-	// Construct PostgreSQL connection string
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-	host := os.Getenv("POSTGRES_HOST")
-
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", user, dbname, password, host)
-	db, err := sql.Open("postgres", connStr)
+	err := userRepository.UsersInit()
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(12)
-		return nil, err
+		return nil
 	}
 
-	if err := db.Ping(); err != nil {
-		fmt.Println(15)
-		fmt.Println(err)
-		return nil, err
-	}
-
-	postgresStore := new(PostgresStore)
-	postgresStore.db = db
-
-	if err = postgresStore.init(); err != nil {
-		fmt.Println(18)
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return postgresStore, nil
+	return userRepository
 }
 
-func (s *PostgresStore) init() error {
+func (s *UserRepository) UsersInit() error {
 	err := s.createAccountTable()
 	if err != nil {
 		fmt.Println(20)
@@ -71,14 +42,14 @@ func (s *PostgresStore) init() error {
 	return nil
 }
 
-func (s *PostgresStore) createAccountTable() error {
+func (s *UserRepository) createAccountTable() error {
 	query :=
 		`CREATE TABLE IF NOT EXISTS users (
     	id SERIAL PRIMARY KEY,
     	username VARCHAR(20) NOT NULL,
     	password TEXT NOT NULL);`
 
-	_, err := s.db.Exec(query)
+	_, err := s.Storage.DB.Exec(query)
 	if err != nil {
 		fmt.Println(1)
 		fmt.Println(err)
@@ -88,12 +59,16 @@ func (s *PostgresStore) createAccountTable() error {
 	return nil
 }
 
-func (s *PostgresStore) CreateUser(username string, password string) error {
+func (s *UserRepository) CreateUser(username string, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("Error hashing password:", err)
+		return err
+	}
 
 	query := `INSERT INTO users (username, password) VALUES ($1, $2)`
 
-	_, err = s.db.Exec(query, username, hashedPassword)
+	_, err = s.Storage.DB.Exec(query, username, hashedPassword)
 	if err != nil {
 		fmt.Println(5423)
 		fmt.Println(err)
@@ -104,22 +79,14 @@ func (s *PostgresStore) CreateUser(username string, password string) error {
 	return nil
 }
 
-func (s *PostgresStore) GetUserByUsername(username string) (*User, error) {
+func (s *UserRepository) GetUserByUsername(username string) (*User, error) {
 	query := `SELECT username, password FROM users WHERE username=$1`
 
-	rows, err := s.db.Query(query, username)
-	if err != nil {
-		fmt.Println(1434)
-		fmt.Println(err)
-		return nil, err
-	}
+	row := s.Storage.DB.QueryRow(query, username)
 
 	user := new(User)
-
-	rows.Next()
-	err = rows.Scan(&user.Username, &user.Password)
+	err := row.Scan(&user.Username, &user.Password)
 	if err != nil {
-		fmt.Println(1666)
 		fmt.Println(err)
 		return nil, ErrUserNotFound
 	}
@@ -128,10 +95,10 @@ func (s *PostgresStore) GetUserByUsername(username string) (*User, error) {
 	return user, nil
 }
 
-func (s *PostgresStore) DeleteUserByID(id int) error {
+func (s *UserRepository) DeleteUserByID(id int) error {
 	query := `DELETE FROM users WHERE id = $1`
 
-	_, err := s.db.Exec(query, id)
+	_, err := s.Storage.DB.Exec(query, id)
 	if err != nil {
 		fmt.Println(1e34)
 		fmt.Println(err)
@@ -142,7 +109,7 @@ func (s *PostgresStore) DeleteUserByID(id int) error {
 	return nil
 }
 
-func (s *PostgresStore) VerifyUser(username, password string) (bool, error) {
+func (s *UserRepository) VerifyUser(username, password string) (bool, error) {
 	user, err := s.GetUserByUsername(username)
 	if err != nil {
 		return false, err

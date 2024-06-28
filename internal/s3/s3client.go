@@ -54,12 +54,7 @@ func NewMinIOClient() (*MinIOClient, error) {
 }
 
 func (c *MinIOClient) UploadObject(key string, file multipart.File, fileSize int64, contentType string, originalFilename string) error {
-	opts := minio.PutObjectOptions{
-		ContentType:  contentType,
-		UserMetadata: map[string]string{"original": originalFilename},
-	}
-
-	_, err := c.client.PutObject(context.Background(), c.bucket, key, file, fileSize, opts)
+	_, err := c.client.PutObject(context.Background(), c.bucket, key, file, fileSize, minio.PutObjectOptions{})
 	if err != nil {
 		return err
 	}
@@ -68,27 +63,12 @@ func (c *MinIOClient) UploadObject(key string, file multipart.File, fileSize int
 	return nil
 }
 
-func (c *MinIOClient) DownloadObject(key string) (io.Reader, string, string, error) {
+func (c *MinIOClient) DownloadObject(key string) (io.Reader, error) {
 	object, err := c.client.GetObject(context.Background(), c.bucket, key, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Printf("Error fetching object '%s' from bucket '%s': %s\n", key, c.bucket, err.Error())
-		return nil, "", "", err
+		return nil, err
 	}
 
-	// Retrieve metadata to get content type
-	info, err := object.Stat()
-	if err != nil {
-		object.Close() // Close the object if an error occurs
-		fmt.Println("Error: " + err.Error())
-		return nil, "", "", err
-	}
-
-	// Extract original filename and content type from user metadata
-	originalFilename := info.UserMetadata["original"]
-	if originalFilename == "" {
-		originalFilename = key // Fallback to using object key as filename
-	}
-
-	fmt.Printf("Retrieved object from %s. Filename: %s, Filesize: %d, ContentType: %s\n", c.bucket, originalFilename, info.Size, info.ContentType)
-	return object, originalFilename, info.ContentType, nil
+	return object, nil
 }

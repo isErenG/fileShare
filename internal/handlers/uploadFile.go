@@ -25,7 +25,7 @@ func UploadFile(fileRepo data.FileRepository) http.HandlerFunc {
 		if contentType == "" {
 			contentType = "application/octet-stream"
 		}
-		err = fileRepo.UploadObject(code, file, handler.Size, contentType, handler.Filename)
+		err = fileRepo.UploadFile(code, file, handler.Size, contentType, handler.Filename)
 		if err != nil {
 			log.Printf("Failed to upload file: %v", err)
 			http.Error(w, "Failed to upload file", http.StatusInternalServerError)

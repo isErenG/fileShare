@@ -18,7 +18,7 @@ func DownloadFile(fileRepo data.FileRepository) http.HandlerFunc {
 			return
 		}
 
-		file, filename, contentType, err := fileRepo.DownloadObject(filecode)
+		file, filename, contentType, err := fileRepo.DownloadFile(filecode)
 		if err != nil {
 			response.DownloadMessage = "File code is not found!"
 			renderTemplate(w, "index.html", response)

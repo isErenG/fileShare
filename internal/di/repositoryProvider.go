@@ -2,14 +2,14 @@ package di
 
 import (
 	"fileShare/internal/data"
-	postgres "fileShare/internal/data/postgres/repository"
-	"fileShare/internal/s3"
+	db "fileShare/internal/data/postgres"
+	"fileShare/internal/data/postgres/repository"
 )
 
-func GetFileRepository() (data.FileRepository, error) {
-	return s3.NewMinIOClient()
+func GetFileRepository(connection *db.Connection) data.FileRepository {
+	return repository.NewFilesStorage(connection)
 }
 
-func GetUserRepository() (data.UserRepository, error) {
-	return postgres.NewPostgresStore()
+func GetUserRepository(connection *db.Connection) data.UserRepository {
+	return repository.NewUsersStorage(connection)
 }

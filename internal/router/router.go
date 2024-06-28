@@ -1,24 +1,24 @@
 package router
 
 import (
+	"fileShare/internal/data/postgres"
 	"fileShare/internal/di"
 	"fileShare/internal/handlers"
 	"fileShare/pkg/auth/jwt"
+	"fmt"
 	"net/http"
 )
 
 func New() *http.ServeMux {
 	r := http.NewServeMux()
 
-	userRepo, err := di.GetUserRepository()
+	conn, err := db.GetNewConnection()
 	if err != nil {
-		panic(err)
+		fmt.Println("Error creating connection! " + err.Error())
 	}
 
-	fileRepo, err := di.GetFileRepository()
-	if err != nil {
-		panic(err)
-	}
+	userRepo := di.GetUserRepository(conn)
+	fileRepo := di.GetFileRepository(conn)
 
 	// Golang constructor
 	lh := &handlers.LoginHandler{Storage: userRepo}
