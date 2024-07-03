@@ -28,11 +28,10 @@ func GetNewConnection() (*Connection, error) {
 	dbname := os.Getenv("POSTGRES_DB")
 	host := os.Getenv("POSTGRES_HOST")
 
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", user, dbname, password, host)
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, dbname)
 	log.Printf("Connecting to database with connection string: %s", connStr)
 
-	var db *sql.DB
-	var err error
+	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
 		log.Printf("Error opening database: %v", err)

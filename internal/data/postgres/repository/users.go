@@ -34,8 +34,6 @@ func NewUsersStorage(conn *db.Connection) (*UserRepository, error) {
 func (s *UserRepository) UsersInit() error {
 	err := s.createAccountTable()
 	if err != nil {
-		fmt.Println(20)
-		fmt.Println(err)
 		return err
 	}
 
