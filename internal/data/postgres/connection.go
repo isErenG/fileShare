@@ -3,11 +3,10 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // PostgreSQL driver
+	"log"
+	"os"
 )
 
 // Connection struct holds the database connection
@@ -15,7 +14,7 @@ type Connection struct {
 	DB *sql.DB
 }
 
-// NewConnection initializes a new database connection
+// GetNewConnection initializes a new database connection
 func GetNewConnection() (*Connection, error) {
 	// Load environment variables from .env file
 	if err := godotenv.Load("/app/.env"); err != nil {
@@ -30,7 +29,11 @@ func GetNewConnection() (*Connection, error) {
 	host := os.Getenv("POSTGRES_HOST")
 
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", user, dbname, password, host)
-	db, err := sql.Open("postgres", connStr)
+	log.Printf("Connecting to database with connection string: %s", connStr)
+
+	var db *sql.DB
+	var err error
+
 	if err != nil {
 		log.Printf("Error opening database: %v", err)
 		return nil, err

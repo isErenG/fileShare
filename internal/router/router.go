@@ -15,10 +15,20 @@ func New() *http.ServeMux {
 	conn, err := db.GetNewConnection()
 	if err != nil {
 		fmt.Println("Error creating connection! " + err.Error())
+		return nil
 	}
 
-	userRepo := di.GetUserRepository(conn)
-	fileRepo := di.GetFileRepository(conn)
+	userRepo, err := di.GetUserRepository(conn)
+	if err != nil {
+		fmt.Println("Error getting user repository! " + err.Error())
+		return nil
+	}
+
+	fileRepo, err := di.GetFileRepository(conn)
+	if err != nil {
+		fmt.Println("Error getting file repository! " + err.Error())
+		return nil
+	}
 
 	// Golang constructor
 	lh := &handlers.LoginHandler{Storage: userRepo}

@@ -14,14 +14,14 @@ type FileRepository struct {
 	S3      *s3.MinIOClient
 }
 
-func NewFilesStorage(conn *db.Connection) *FileRepository {
+func NewFilesStorage(conn *db.Connection) (*FileRepository, error) {
 	filesRepository := new(FileRepository)
 	filesRepository.Storage = conn.DB
 
 	minIO, err := s3.NewMinIOClient()
 	if err != nil {
 		fmt.Println("Failed to connect to minIO: " + err.Error())
-		return nil
+		return nil, err
 	}
 
 	filesRepository.S3 = minIO
@@ -29,10 +29,10 @@ func NewFilesStorage(conn *db.Connection) *FileRepository {
 	err = filesRepository.FilesInit()
 	if err != nil {
 		fmt.Println("Failed to initialize files repository: " + err.Error())
-		return nil
+		return nil, err
 	}
 
-	return filesRepository
+	return filesRepository, nil
 }
 
 func (s *FileRepository) FilesInit() error {

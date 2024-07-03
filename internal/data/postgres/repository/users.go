@@ -19,16 +19,16 @@ type User struct {
 
 var ErrUserNotFound = errors.New("user not found")
 
-func NewUsersStorage(conn *db.Connection) *UserRepository {
+func NewUsersStorage(conn *db.Connection) (*UserRepository, error) {
 	userRepository := new(UserRepository)
 	userRepository.Storage = conn
 
 	err := userRepository.UsersInit()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return userRepository
+	return userRepository, nil
 }
 
 func (s *UserRepository) UsersInit() error {
@@ -51,7 +51,6 @@ func (s *UserRepository) createAccountTable() error {
 
 	_, err := s.Storage.DB.Exec(query)
 	if err != nil {
-		fmt.Println(1)
 		fmt.Println(err)
 		return err
 	}
@@ -100,12 +99,10 @@ func (s *UserRepository) DeleteUserByID(id int) error {
 
 	_, err := s.Storage.DB.Exec(query, id)
 	if err != nil {
-		fmt.Println(1e34)
 		fmt.Println(err)
 		return err
 	}
 
-	fmt.Println("user deleted!")
 	return nil
 }
 
