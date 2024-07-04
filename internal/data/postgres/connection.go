@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"log"
 	"os"
+	"time"
 )
 
 // Connection struct holds the database connection
@@ -30,6 +31,8 @@ func GetNewConnection() (*Connection, error) {
 
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, dbname)
 	log.Printf("Connecting to database with connection string: %s", connStr)
+
+	time.Sleep(5 * time.Second)
 
 	db, err := sql.Open("postgres", connStr)
 
