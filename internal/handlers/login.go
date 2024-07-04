@@ -22,7 +22,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	user, err := h.Storage.VerifyUser(username, password)
+	_, err := h.Storage.VerifyUser(username, password)
 	if err != nil {
 		if err == repository.ErrUserNotFound {
 			err := h.Storage.CreateUser(username, password)
@@ -30,13 +30,10 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(err)
 				return
 			}
-			return
 		}
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-
-	fmt.Println(user)
 
 	token, err := auth.CreateToken(username)
 	if err != nil {
