@@ -24,15 +24,18 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.Storage.VerifyUser(username, password)
 	if err != nil {
+		response := Response{}
 		if err == repository.ErrUserNotFound {
 			err := h.Storage.CreateUser(username, password)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
+		} else {
+			response.LoginMessage = "Incorrect password!"
+			renderTemplate(w, "login.html", response)
+			return
 		}
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
 	}
 
 	token, err := auth.CreateToken(username)
